@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import time
+import random
 from dataclasses import dataclass
 from typing import Dict, List, Tuple
 
@@ -51,49 +52,185 @@ except ImportError:
 
 ROOMS = ["kitchen", "bathroom", "living room", "bedroom", "outside"]
 
+# ========================= Sophisticated prompt engineering =========================
+TARGET_PROMPTS_PER_ROOM = 90  # set between 50–100 if you want to tune
+
+ROOM_ALIASES = {
+    "kitchen": ["kitchen", "home kitchen", "domestic kitchen", "cooking area", "galley kitchen"],
+    "bathroom": ["bathroom", "washroom", "restroom", "toilet room", "lavatory"],
+    "living room": ["living room", "lounge", "sitting room", "family room", "living area"],
+    "bedroom": ["bedroom", "sleeping room", "master bedroom", "guest bedroom"],
+    "outside": ["garden", "backyard", "outdoors", "patio", "yard"],
+}
+
+ROOM_OBJECTS = {
+    "kitchen": [
+        "stove", "gas stove", "induction cooktop", "oven", "microwave",
+        "range hood", "kettle", "toaster", "blender", "fridge", "refrigerator",
+        "kitchen island", "countertop", "cutting board", "knife block",
+        "pots and pans", "spice rack", "dish rack", "kitchen cabinets",
+        "kitchen sink", "faucet", "dish soap", "paper towel holder",
+        "bar stools", "backsplash", "pantry shelves",
+    ],
+    "bathroom": [
+        "toilet", "toilet seat", "toilet paper holder",
+        "bathroom sink", "vanity", "mirror", "medicine cabinet",
+        "shower", "glass shower door", "bathtub", "shower curtain",
+        "towel rack", "toothbrush", "toothpaste", "soap dispenser",
+        "bath mat", "tiles", "hair dryer", "razor",
+    ],
+    "living room": [
+        "sofa", "couch", "sectional", "armchair",
+        "coffee table", "TV", "television", "TV stand", "remote control",
+        "bookshelf", "floor lamp", "table lamp", "throw pillow",
+        "rug", "side table", "wall art", "soundbar",
+        "game console", "indoor plant", "fireplace", "mantel", "curtains",
+    ],
+    "bedroom": [
+        "bed", "pillow", "blanket", "duvet", "bedsheet",
+        "nightstand", "bedside lamp", "alarm clock",
+        "wardrobe", "closet", "dresser", "mirror",
+        "headboard", "vanity table", "laundry basket",
+        "crib", "bunk bed",
+    ],
+    "outside": [
+        "grass", "lawn", "trees", "bushes", "fence",
+        "patio furniture", "outdoor table", "barbecue", "grill",
+        "deck", "balcony", "flower bed", "garden hose",
+        "shed", "pathway", "stones", "planter box", "swing", "trampoline",
+    ],
+}
+
+ROOM_ACTIVITIES = {
+    "kitchen": [
+        "cooking dinner", "chopping vegetables", "boiling water",
+        "washing dishes", "prepping food", "brewing coffee",
+    ],
+    "bathroom": [
+        "brushing teeth", "washing hands", "taking a shower",
+        "applying makeup", "shaving", "using the toilet",
+    ],
+    "living room": [
+        "watching TV", "playing video games", "reading on the sofa",
+        "relaxing on the couch", "hosting guests",
+    ],
+    "bedroom": [
+        "sleeping", "making the bed", "reading in bed",
+        "getting dressed", "folding clothes",
+    ],
+    "outside": [
+        "gardening", "barbecuing", "sitting on patio furniture",
+        "watering plants", "mowing the lawn",
+    ],
+}
+
+FRAMES = [
+    "close-up", "cropped", "partial view", "corner of the room",
+    "top-down", "low angle", "high angle", "over-the-shoulder",
+    "through a doorway", "in a mirror reflection", "wide-angle",
+    "smartphone photo", "security camera frame", "GoPro frame",
+    "dim lighting", "bright daylight", "warm-toned light", "cool-toned light",
+]
+
+BASE_TEMPLATES = [
+    "a photo of a {alias}",
+    "the interior of a {alias}",
+    "an everyday {alias}",
+    "a realistic {alias}",
+    "a {alias} with typical furniture",
+]
+
+OBJECT_TEMPLATES = [
+    "a {alias} with a {obj}",
+    "a {frame} of a {obj} in a {alias}",
+    "POV in the {alias} looking at the {obj}",
+    "a {alias} countertop showing a {obj}",
+    "a {obj} next to a wall in a {alias}",
+    "the corner of a {alias} showing a {obj}",
+]
+
+ACTIVITY_TEMPLATES = [
+    "a {alias} where someone is {act}",
+    "a {frame} showing {act} in the {alias}",
+    "signs of {act} in a {alias}",
+]
+
+DISAMBIG_SPECIALS = [
+    "{alias} with a bathroom sink",
+    "{alias} with a kitchen sink",
+    "{alias} showing a toilet seat",
+    "{alias} showing a bed",
+    "{alias} showing a sofa",
+]
+
+def _mk_room_aliases(room: str) -> List[str]:
+    return ROOM_ALIASES.get(room, [room])
+
+def _prioritized_prompts_for_room(room: str) -> List[str]:
+    aliases = _mk_room_aliases(room)
+    objs = ROOM_OBJECTS.get(room, [])
+    acts = ROOM_ACTIVITIES.get(room, [])
+
+    out: List[str] = []
+    seen = set()
+
+    def add(fmt: str, **kw):
+        s = fmt.format(**kw)
+        if s not in seen:
+            seen.add(s)
+            out.append(s)
+
+    # 1) Strong class-name cues
+    for alias in aliases:
+        for t in BASE_TEMPLATES:
+            add(t, alias=alias)
+
+    # 2) Disambiguation specials (helps sink/bed/toilet/sofa cases)
+    for alias in aliases:
+        for t in DISAMBIG_SPECIALS:
+            add(t, alias=alias)
+
+    # 3) Object-centric with limited frame combos (high precision)
+    for alias in aliases:
+        for obj in objs:
+            add("a {alias} containing a {obj}", alias=alias, obj=obj)
+            for t in OBJECT_TEMPLATES:
+                for frame in FRAMES[:6]:  # limit explosion
+                    add(t, alias=alias, obj=obj, frame=frame)
+
+    # 4) Activity-centric with limited frame combos
+    for alias in aliases:
+        for act in acts:
+            for t in ACTIVITY_TEMPLATES:
+                for frame in FRAMES[:6]:
+                    add(t, alias=alias, act=act, frame=frame)
+
+    # 5) Frame-only variants (extreme crops)
+    for alias in aliases:
+        for frame in FRAMES:
+            add("a {frame} of a {alias}", alias=alias, frame=frame)
+
+    return out
+
 def generate_prompts() -> Dict[str, List[str]]:
-    base_templates = [
-        "a photo of a {}", "an indoor scene of a {}", "this looks like a {}",
-        "a wide-angle shot of a {}", "a smartphone picture of a {}",
-        "a well-lit {}", "a dimly lit {}", "a messy {}", "a clean {}",
-        "a modern {}", "a cozy {}", "a minimalist {}", "an everyday {}",
-        "a typical {}", "a realistic {}", "a high-resolution {}",
-        "a documentary photo of a {}", "a candid shot of a {}",
-        "a room that is a {}", "the interior of a {}", "the inside of a {}",
-        "a space that appears to be a {}", "a snapshot of a {}",
-        "a still image of a {}", "a view of a {}", "a {} with furniture",
-        "a {} with people", "an empty {}", "a daylight {}", "a nighttime {}",
-        "a cluttered {}", "a spacious {}", "a small {}", "a bright {}",
-        "a dark {}", "a warm-toned {}", "a cool-toned {}", "an HDR photo of a {}",
-        "an aesthetic {}", "a snapshot on social media of a {}", "a vlog frame inside a {}",
-        "a first-person view of a {}", "a security camera frame of a {}",
-        "a GoPro frame of a {}", "a webcam frame of a {}",
-        "a 35mm film photo of a {}", "a Polaroid of a {}", "a candid home photo of a {}",
-        "an architectural photo of a {}", "an example of a {}",
-    ]
-    variants = {
-        "kitchen": ["kitchen", "home kitchen", "domestic kitchen", "cooking area", "kitchen space"],
-        "bathroom": ["bathroom", "washroom", "restroom", "toilet room", "bathroom interior"],
-        "living room": ["living room", "lounge", "sitting room", "family room", "living area"],
-        "bedroom": ["bedroom", "sleeping room", "master bedroom", "guest bedroom", "bedroom interior"],
-        "outside": ["garden", "backyard", "outdoors", "patio", "outside area"],
-    }
-    prompts: Dict[str, List[str]] = {}
+    prompts_by_room: Dict[str, List[str]] = {}
     for room in ROOMS:
-        room_prompts = set()
-        for t in base_templates:
-            for v in variants[room]:
-                room_prompts.add(t.format(v))
-                if len(room_prompts) >= 50:
-                    break
-            if len(room_prompts) >= 50:
-                break
-        i = 1
-        while len(room_prompts) < 50:
-            room_prompts.add(f"a photo that looks like a {room} ({i})")
-            i += 1
-        prompts[room] = list(room_prompts)[:50]
-    return prompts
+        p = _prioritized_prompts_for_room(room)
+
+        # Keep strongest ~40 upfront, then lightly shuffle the rest for diversity
+        head = p[:40]
+        tail = p[40:]
+        random.seed(42)
+        random.shuffle(tail)
+        capped = (head + tail)[:TARGET_PROMPTS_PER_ROOM]
+
+        # Guarantee minimum of 50
+        if len(capped) < 50:
+            capped = (capped + p[len(capped):])[:50]
+
+        prompts_by_room[room] = capped
+    return prompts_by_room
+# ======================= /Sophisticated prompt engineering =======================
 
 AVAILABLE_MODELS = [
     "ViT-B/32",        # fast
@@ -119,7 +256,8 @@ class ClipContext:
 
 def _encode_text(model, tokens, use_fp16: bool):
     if torch.cuda.is_available():
-        with torch.cuda.amp.autocast(dtype=torch.float16, enabled=use_fp16):
+        # new API
+        with torch.amp.autocast("cuda", dtype=torch.float16, enabled=use_fp16):
             feats = model.encode_text(tokens)
     else:
         feats = model.encode_text(tokens)
@@ -127,7 +265,8 @@ def _encode_text(model, tokens, use_fp16: bool):
 
 def _encode_image(model, img_tensor, use_fp16: bool):
     if torch.cuda.is_available():
-        with torch.cuda.amp.autocast(dtype=torch.float16, enabled=use_fp16):
+        # new API
+        with torch.amp.autocast("cuda", dtype=torch.float16, enabled=use_fp16):
             feats = model.encode_image(img_tensor)
     else:
         feats = model.encode_image(img_tensor)
@@ -164,12 +303,24 @@ def build_clip(model_name: str, use_fp16: bool) -> ClipContext:
         use_fp16=use_fp16,
     )
 
+# -------- lazy init guard so CTX is always available ----------
 CTX: ClipContext | None = None
+DEFAULT_MODEL = "ViT-L/14@336px"
+DEFAULT_FP16 = torch.cuda.is_available()
+CURRENT_MODEL = DEFAULT_MODEL
+CURRENT_FP16 = DEFAULT_FP16
+
+def ensure_ctx():
+    """Create the global CTX if it hasn't been created yet."""
+    global CTX
+    if CTX is None:
+        CTX = build_clip(CURRENT_MODEL, use_fp16=CURRENT_FP16)
+# --------------------------------------------------------------
 
 @torch.no_grad()
 def classify_frame(image: Image.Image) -> Tuple[str, float]:
     global CTX
-    assert CTX is not None, "Model not initialized"
+    ensure_ctx()  # make sure model exists even if stream starts early
     img_input = CTX.preprocess(image).unsqueeze(0).to(CTX.device)
     image_features = _encode_image(CTX.model, img_input, use_fp16=CTX.use_fp16)
     image_features = F.normalize(image_features.float(), dim=-1)
@@ -212,7 +363,9 @@ def draw_label(image: Image.Image, label: str, confidence: float) -> Image.Image
     return img
 
 def startup(selected_model: str, use_fp16: bool) -> str:
-    global CTX
+    global CTX, CURRENT_MODEL, CURRENT_FP16
+    CURRENT_MODEL = selected_model
+    CURRENT_FP16 = use_fp16
     t0 = time.time()
     CTX = build_clip(selected_model, use_fp16=use_fp16)
     t1 = time.time()
@@ -235,6 +388,8 @@ def reload_model(selected_model: str, use_fp16: bool) -> str:
 def process_frame(frame: np.ndarray, threshold_percent: float) -> Tuple[np.ndarray, str]:
     if frame is None:
         return None, ""
+    # If the model somehow isn't ready yet, build it lazily (non-crashing)
+    ensure_ctx()
     pil = Image.fromarray(frame.astype(np.uint8))
     room, conf = classify_frame(pil)
     threshold = float(threshold_percent) / 100.0
@@ -252,11 +407,11 @@ with gr.Blocks(css=".label-box {font-size: 1.2rem; font-weight: 600}") as demo:
     with gr.Row():
         model_select = gr.Dropdown(
             choices=AVAILABLE_MODELS,
-            value="ViT-L/14@336px",  # default to strongest
+            value=DEFAULT_MODEL,  # default to strongest
             label="CLIP model (stronger ⇒ slower)"
         )
         fp16_toggle = gr.Checkbox(
-            value=torch.cuda.is_available(),  # default to True if CUDA
+            value=DEFAULT_FP16,  # default to True if CUDA
             label="Use FP16 (GPU only)"
         )
         threshold_slider = gr.Slider(
@@ -265,16 +420,25 @@ with gr.Blocks(css=".label-box {font-size: 1.2rem; font-weight: 600}") as demo:
         )
     status = gr.Markdown("Initializing…")
 
+    # Ensure model builds as soon as the page loads
+    demo.load(fn=startup, inputs=[model_select, fp16_toggle], outputs=status)
+
     with gr.Row():
-        cam = gr.Image(sources=["webcam"], streaming=True, mirror_webcam=True, label="Webcam", height=420)
+        cam = gr.Image(
+            sources=["webcam"],
+            streaming=True,
+            label="Webcam",
+            height=420,
+            webcam_options=gr.WebcamOptions(mirror=True)  # replaces deprecated mirror_webcam
+        )
         out_img = gr.Image(label="Annotated Stream", height=420)
     label_text = gr.Textbox(label="Predicted Room", interactive=False, elem_classes=["label-box"])
 
+    # Stream AFTER wiring the loader to reduce race conditions
     cam.stream(process_frame, inputs=[cam, threshold_slider], outputs=[out_img, label_text], concurrency_limit=2)
-    demo.load(fn=startup, inputs=[model_select, fp16_toggle], outputs=status)
     model_select.change(fn=reload_model, inputs=[model_select, fp16_toggle], outputs=status)
     fp16_toggle.change(fn=reload_model, inputs=[model_select, fp16_toggle], outputs=status)
 
 if __name__ == "__main__":
-    # Server deploy defaults (no public tunneling):
+    # Server deploy defaults (enable share if you want a public link)
     demo.queue().launch(server_name="0.0.0.0", server_port=7860, share=True, max_threads=8)

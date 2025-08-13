@@ -1,0 +1,451 @@
+prompt,score,room,class_prob
+a photo of a kitchen,0.23036229610443115,kitchen,0.19677702680711948
+the interior of a kitchen,0.20334699749946594,kitchen,0.19677702680711948
+an everyday kitchen,0.22461624443531036,kitchen,0.19677702680711948
+a realistic kitchen,0.18941913545131683,kitchen,0.19677702680711948
+a kitchen with typical furniture,0.17990440130233765,kitchen,0.19677702680711948
+a photo of a home kitchen,0.21586760878562927,kitchen,0.19677702680711948
+the interior of a home kitchen,0.19745531678199768,kitchen,0.19677702680711948
+an everyday home kitchen,0.21387052536010742,kitchen,0.19677702680711948
+a realistic home kitchen,0.1720893681049347,kitchen,0.19677702680711948
+a home kitchen with typical furniture,0.17369259893894196,kitchen,0.19677702680711948
+a photo of a domestic kitchen,0.2271309792995453,kitchen,0.19677702680711948
+the interior of a domestic kitchen,0.2036251723766327,kitchen,0.19677702680711948
+an everyday domestic kitchen,0.22392718493938446,kitchen,0.19677702680711948
+a realistic domestic kitchen,0.18762850761413574,kitchen,0.19677702680711948
+a domestic kitchen with typical furniture,0.17971864342689514,kitchen,0.19677702680711948
+a photo of a cooking area,0.2031455785036087,kitchen,0.19677702680711948
+the interior of a cooking area,0.18730589747428894,kitchen,0.19677702680711948
+an everyday cooking area,0.2031158208847046,kitchen,0.19677702680711948
+a realistic cooking area,0.1844465434551239,kitchen,0.19677702680711948
+a cooking area with typical furniture,0.17467370629310608,kitchen,0.19677702680711948
+a photo of a galley kitchen,0.1900295466184616,kitchen,0.19677702680711948
+the interior of a galley kitchen,0.18669135868549347,kitchen,0.19677702680711948
+an everyday galley kitchen,0.2004728764295578,kitchen,0.19677702680711948
+a realistic galley kitchen,0.1632765531539917,kitchen,0.19677702680711948
+a galley kitchen with typical furniture,0.16522268950939178,kitchen,0.19677702680711948
+kitchen with a bathroom sink,0.19991816580295563,kitchen,0.19677702680711948
+kitchen with a kitchen sink,0.20678956806659698,kitchen,0.19677702680711948
+kitchen showing a toilet seat,0.20298545062541962,kitchen,0.19677702680711948
+kitchen showing a bed,0.22972722351551056,kitchen,0.19677702680711948
+kitchen showing a sofa,0.21081045269966125,kitchen,0.19677702680711948
+home kitchen with a bathroom sink,0.18928010761737823,kitchen,0.19677702680711948
+home kitchen with a kitchen sink,0.19499310851097107,kitchen,0.19677702680711948
+home kitchen showing a toilet seat,0.19444458186626434,kitchen,0.19677702680711948
+home kitchen showing a bed,0.22312717139720917,kitchen,0.19677702680711948
+home kitchen showing a sofa,0.20580773055553436,kitchen,0.19677702680711948
+domestic kitchen with a bathroom sink,0.2048000544309616,kitchen,0.19677702680711948
+domestic kitchen with a kitchen sink,0.20667943358421326,kitchen,0.19677702680711948
+domestic kitchen showing a toilet seat,0.192128986120224,kitchen,0.19677702680711948
+domestic kitchen showing a bed,0.21942242980003357,kitchen,0.19677702680711948
+domestic kitchen showing a sofa,0.20185863971710205,kitchen,0.19677702680711948
+a microwave next to a wall in a kitchen,0.19832035899162292,kitchen,0.19677702680711948
+a top-down showing brewing coffee in the galley kitchen,0.1907649040222168,kitchen,0.19677702680711948
+a low angle of a dish rack in a domestic kitchen,0.20927515625953674,kitchen,0.19677702680711948
+POV in the home kitchen looking at the microwave,0.24241670966148376,kitchen,0.19677702680711948
+a cropped of a refrigerator in a kitchen,0.20760314166545868,kitchen,0.19677702680711948
+a galley kitchen containing a oven,0.16741952300071716,kitchen,0.19677702680711948
+a galley kitchen countertop showing a pantry shelves,0.14242441952228546,kitchen,0.19677702680711948
+a low angle of a countertop in a cooking area,0.19745302200317383,kitchen,0.19677702680711948
+a bar stools next to a wall in a kitchen,0.18188734352588654,kitchen,0.19677702680711948
+a top-down of a kettle in a home kitchen,0.19810223579406738,kitchen,0.19677702680711948
+the corner of a home kitchen showing a gas stove,0.16583099961280823,kitchen,0.19677702680711948
+a low angle showing brewing coffee in the galley kitchen,0.2025585174560547,kitchen,0.19677702680711948
+a cooking area countertop showing a kitchen sink,0.16684655845165253,kitchen,0.19677702680711948
+a close-up of a dish rack in a domestic kitchen,0.1668669730424881,kitchen,0.19677702680711948
+a kitchen containing a pantry shelves,0.1755101978778839,kitchen,0.19677702680711948
+a close-up of a bar stools in a galley kitchen,0.1551637202501297,kitchen,0.19677702680711948
+a bright daylight of a galley kitchen,0.17061257362365723,kitchen,0.19677702680711948
+a top-down of a gas stove in a cooking area,0.16973400115966797,kitchen,0.19677702680711948
+a cropped of a range hood in a cooking area,0.17758817970752716,kitchen,0.19677702680711948
+a cropped of a oven in a home kitchen,0.20293188095092773,kitchen,0.19677702680711948
+a kitchen countertop showing a knife block,0.1538468897342682,kitchen,0.19677702680711948
+a home kitchen countertop showing a spice rack,0.14387980103492737,kitchen,0.19677702680711948
+a top-down of a blender in a domestic kitchen,0.19701766967773438,kitchen,0.19677702680711948
+a home kitchen with a spice rack,0.1620301753282547,kitchen,0.19677702680711948
+a partial view showing chopping vegetables in the galley kitchen,0.16732926666736603,kitchen,0.19677702680711948
+a dim lighting of a home kitchen,0.20225214958190918,kitchen,0.19677702680711948
+POV in the domestic kitchen looking at the dish soap,0.2301165610551834,kitchen,0.19677702680711948
+a corner of the room of a range hood in a home kitchen,0.1834677904844284,kitchen,0.19677702680711948
+signs of cooking dinner in a domestic kitchen,0.18356697261333466,kitchen,0.19677702680711948
+a domestic kitchen with a pots and pans,0.1864677369594574,kitchen,0.19677702680711948
+a cropped of a fridge in a cooking area,0.20437833666801453,kitchen,0.19677702680711948
+a low angle of a spice rack in a cooking area,0.19288472831249237,kitchen,0.19677702680711948
+a close-up of a refrigerator in a kitchen,0.1819441169500351,kitchen,0.19677702680711948
+the corner of a galley kitchen showing a kitchen sink,0.18427899479866028,kitchen,0.19677702680711948
+a kitchen containing a paper towel holder,0.17297270894050598,kitchen,0.19677702680711948
+a cool-toned light of a home kitchen,0.14631876349449158,kitchen,0.19677702680711948
+a domestic kitchen containing a toaster,0.20746652781963348,kitchen,0.19677702680711948
+a smartphone photo of a home kitchen,0.2224409282207489,kitchen,0.19677702680711948
+the corner of a kitchen showing a microwave,0.20568092167377472,kitchen,0.19677702680711948
+a close-up of a gas stove in a kitchen,0.15060625970363617,kitchen,0.19677702680711948
+a close-up of a paper towel holder in a cooking area,0.1406322866678238,kitchen,0.19677702680711948
+a partial view of a bar stools in a domestic kitchen,0.17335891723632812,kitchen,0.19677702680711948
+a corner of the room of a fridge in a kitchen,0.2115439921617508,kitchen,0.19677702680711948
+POV in the home kitchen looking at the induction cooktop,0.21942934393882751,kitchen,0.19677702680711948
+signs of chopping vegetables in a galley kitchen,0.18479028344154358,kitchen,0.19677702680711948
+a corner of the room of a paper towel holder in a domestic kitchen,0.1746683120727539,kitchen,0.19677702680711948
+a home kitchen countertop showing a toaster,0.18905478715896606,kitchen,0.19677702680711948
+the corner of a domestic kitchen showing a toaster,0.20513562858104706,kitchen,0.19677702680711948
+a partial view of a paper towel holder in a domestic kitchen,0.16507616639137268,kitchen,0.19677702680711948
+a cropped showing prepping food in the domestic kitchen,0.200993150472641,kitchen,0.19677702680711948
+a photo of a bathroom,0.24155576527118683,bathroom,0.19670750662943678
+the interior of a bathroom,0.21039731800556183,bathroom,0.19670750662943678
+an everyday bathroom,0.22181737422943115,bathroom,0.19670750662943678
+a realistic bathroom,0.2048516720533371,bathroom,0.19670750662943678
+a bathroom with typical furniture,0.20677383244037628,bathroom,0.19670750662943678
+a photo of a washroom,0.22600071132183075,bathroom,0.19670750662943678
+the interior of a washroom,0.19906751811504364,bathroom,0.19670750662943678
+an everyday washroom,0.21120110154151917,bathroom,0.19670750662943678
+a realistic washroom,0.20271654427051544,bathroom,0.19670750662943678
+a washroom with typical furniture,0.18755915760993958,bathroom,0.19670750662943678
+a photo of a restroom,0.20978710055351257,bathroom,0.19670750662943678
+the interior of a restroom,0.1884119212627411,bathroom,0.19670750662943678
+an everyday restroom,0.1953846663236618,bathroom,0.19670750662943678
+a realistic restroom,0.18412262201309204,bathroom,0.19670750662943678
+a restroom with typical furniture,0.19076105952262878,bathroom,0.19670750662943678
+a photo of a toilet room,0.2317209243774414,bathroom,0.19670750662943678
+the interior of a toilet room,0.21119487285614014,bathroom,0.19670750662943678
+an everyday toilet room,0.22921423614025116,bathroom,0.19670750662943678
+a realistic toilet room,0.21348285675048828,bathroom,0.19670750662943678
+a toilet room with typical furniture,0.2004946917295456,bathroom,0.19670750662943678
+a photo of a lavatory,0.22492492198944092,bathroom,0.19670750662943678
+the interior of a lavatory,0.2056596279144287,bathroom,0.19670750662943678
+an everyday lavatory,0.21046105027198792,bathroom,0.19670750662943678
+a realistic lavatory,0.19532060623168945,bathroom,0.19670750662943678
+a lavatory with typical furniture,0.18950793147087097,bathroom,0.19670750662943678
+bathroom with a bathroom sink,0.20648732781410217,bathroom,0.19670750662943678
+bathroom with a kitchen sink,0.20772704482078552,bathroom,0.19670750662943678
+bathroom showing a toilet seat,0.19905486702919006,bathroom,0.19670750662943678
+bathroom showing a bed,0.2396046370267868,bathroom,0.19670750662943678
+bathroom showing a sofa,0.22083230316638947,bathroom,0.19670750662943678
+washroom with a bathroom sink,0.2038537561893463,bathroom,0.19670750662943678
+washroom with a kitchen sink,0.20729012787342072,bathroom,0.19670750662943678
+washroom showing a toilet seat,0.19300547242164612,bathroom,0.19670750662943678
+washroom showing a bed,0.23555386066436768,bathroom,0.19670750662943678
+washroom showing a sofa,0.21451321244239807,bathroom,0.19670750662943678
+restroom with a bathroom sink,0.18368850648403168,bathroom,0.19670750662943678
+restroom with a kitchen sink,0.1931382715702057,bathroom,0.19670750662943678
+restroom showing a toilet seat,0.1676306426525116,bathroom,0.19670750662943678
+restroom showing a bed,0.23487381637096405,bathroom,0.19670750662943678
+restroom showing a sofa,0.2079331874847412,bathroom,0.19670750662943678
+signs of taking a shower in a restroom,0.1814999282360077,bathroom,0.19670750662943678
+a washroom with a toothbrush,0.21540138125419617,bathroom,0.19670750662943678
+a top-down showing shaving in the bathroom,0.23515816032886505,bathroom,0.19670750662943678
+a partial view showing taking a shower in the toilet room,0.2354423552751541,bathroom,0.19670750662943678
+a partial view of a toothpaste in a toilet room,0.1817605197429657,bathroom,0.19670750662943678
+a lavatory containing a bathtub,0.20237286388874054,bathroom,0.19670750662943678
+a cropped of a toothbrush in a washroom,0.18861441314220428,bathroom,0.19670750662943678
+a close-up of a bath mat in a toilet room,0.17110002040863037,bathroom,0.19670750662943678
+the corner of a lavatory showing a toilet seat,0.18362803757190704,bathroom,0.19670750662943678
+a corner of the room of a shower curtain in a restroom,0.17266961932182312,bathroom,0.19670750662943678
+the corner of a restroom showing a hair dryer,0.1865626573562622,bathroom,0.19670750662943678
+a restroom with a towel rack,0.1887088567018509,bathroom,0.19670750662943678
+a top-down of a mirror in a lavatory,0.2032325267791748,bathroom,0.19670750662943678
+a top-down showing applying makeup in the bathroom,0.22435903549194336,bathroom,0.19670750662943678
+a cropped of a bathroom sink in a bathroom,0.1868387907743454,bathroom,0.19670750662943678
+POV in the restroom looking at the toilet paper holder,0.21531200408935547,bathroom,0.19670750662943678
+a partial view showing shaving in the washroom,0.2341032773256302,bathroom,0.19670750662943678
+a low angle of a bathroom sink in a lavatory,0.19352248311042786,bathroom,0.19670750662943678
+a lavatory with a soap dispenser,0.17371506989002228,bathroom,0.19670750662943678
+a toilet room where someone is brushing teeth,0.2100888192653656,bathroom,0.19670750662943678
+a cropped of a soap dispenser in a bathroom,0.16304631531238556,bathroom,0.19670750662943678
+a low angle showing washing hands in the washroom,0.20913906395435333,bathroom,0.19670750662943678
+a close-up of a bath mat in a bathroom,0.17902085185050964,bathroom,0.19670750662943678
+POV in the lavatory looking at the toilet,0.227289080619812,bathroom,0.19670750662943678
+a corner of the room of a bath mat in a washroom,0.191274493932724,bathroom,0.19670750662943678
+a cropped of a toothbrush in a bathroom,0.1972064971923828,bathroom,0.19670750662943678
+a close-up of a toilet seat in a washroom,0.16052402555942535,bathroom,0.19670750662943678
+a top-down of a mirror in a toilet room,0.20373496413230896,bathroom,0.19670750662943678
+a corner of the room showing shaving in the washroom,0.23923596739768982,bathroom,0.19670750662943678
+a washroom containing a bathtub,0.194696843624115,bathroom,0.19670750662943678
+a corner of the room of a toothbrush in a restroom,0.15998931229114532,bathroom,0.19670750662943678
+the corner of a restroom showing a shower curtain,0.1764025241136551,bathroom,0.19670750662943678
+a cropped of a shower curtain in a bathroom,0.20429134368896484,bathroom,0.19670750662943678
+a top-down of a bathroom,0.20971357822418213,bathroom,0.19670750662943678
+POV in the restroom looking at the bathroom sink,0.20853707194328308,bathroom,0.19670750662943678
+a low angle of a bath mat in a restroom,0.1749599128961563,bathroom,0.19670750662943678
+a low angle of a razor in a toilet room,0.18814916908740997,bathroom,0.19670750662943678
+POV in the restroom looking at the shower,0.22630199790000916,bathroom,0.19670750662943678
+a top-down showing taking a shower in the washroom,0.23705287277698517,bathroom,0.19670750662943678
+a top-down of a medicine cabinet in a toilet room,0.19302457571029663,bathroom,0.19670750662943678
+a corner of the room showing washing hands in the toilet room,0.19361981749534607,bathroom,0.19670750662943678
+a close-up of a washroom,0.19427606463432312,bathroom,0.19670750662943678
+a top-down of a toothpaste in a washroom,0.16719016432762146,bathroom,0.19670750662943678
+POV in the toilet room looking at the toothbrush,0.23113302886486053,bathroom,0.19670750662943678
+a cropped showing using the toilet in the restroom,0.23141813278198242,bathroom,0.19670750662943678
+a toilet room containing a toilet paper holder,0.19571271538734436,bathroom,0.19670750662943678
+a top-down showing taking a shower in the restroom,0.212795689702034,bathroom,0.19670750662943678
+the corner of a lavatory showing a shower,0.20529794692993164,bathroom,0.19670750662943678
+a close-up of a shower curtain in a bathroom,0.19005396962165833,bathroom,0.19670750662943678
+POV in the washroom looking at the razor,0.2166663110256195,bathroom,0.19670750662943678
+a photo of a living room,0.24477966129779816,living room,0.20113165181311363
+the interior of a living room,0.21060767769813538,living room,0.20113165181311363
+an everyday living room,0.22915256023406982,living room,0.20113165181311363
+a realistic living room,0.2009335309267044,living room,0.20113165181311363
+a living room with typical furniture,0.1853327751159668,living room,0.20113165181311363
+a photo of a lounge,0.2431953400373459,living room,0.20113165181311363
+the interior of a lounge,0.20733073353767395,living room,0.20113165181311363
+an everyday lounge,0.2333640158176422,living room,0.20113165181311363
+a realistic lounge,0.21590320765972137,living room,0.20113165181311363
+a lounge with typical furniture,0.18971416354179382,living room,0.20113165181311363
+a photo of a sitting room,0.22218362987041473,living room,0.20113165181311363
+the interior of a sitting room,0.19180965423583984,living room,0.20113165181311363
+an everyday sitting room,0.20941229164600372,living room,0.20113165181311363
+a realistic sitting room,0.18943175673484802,living room,0.20113165181311363
+a sitting room with typical furniture,0.17103752493858337,living room,0.20113165181311363
+a photo of a family room,0.22252431511878967,living room,0.20113165181311363
+the interior of a family room,0.19664040207862854,living room,0.20113165181311363
+an everyday family room,0.21573272347450256,living room,0.20113165181311363
+a realistic family room,0.18931467831134796,living room,0.20113165181311363
+a family room with typical furniture,0.17471641302108765,living room,0.20113165181311363
+a photo of a living area,0.23888826370239258,living room,0.20113165181311363
+the interior of a living area,0.20588187873363495,living room,0.20113165181311363
+an everyday living area,0.2309073507785797,living room,0.20113165181311363
+a realistic living area,0.20100803673267365,living room,0.20113165181311363
+a living area with typical furniture,0.1896507292985916,living room,0.20113165181311363
+living room with a bathroom sink,0.21595382690429688,living room,0.20113165181311363
+living room with a kitchen sink,0.21082258224487305,living room,0.20113165181311363
+living room showing a toilet seat,0.21166929602622986,living room,0.20113165181311363
+living room showing a bed,0.22685964405536652,living room,0.20113165181311363
+living room showing a sofa,0.2015506774187088,living room,0.20113165181311363
+lounge with a bathroom sink,0.20695741474628448,living room,0.20113165181311363
+lounge with a kitchen sink,0.20989136397838593,living room,0.20113165181311363
+lounge showing a toilet seat,0.22398719191551208,living room,0.20113165181311363
+lounge showing a bed,0.23996129631996155,living room,0.20113165181311363
+lounge showing a sofa,0.210362046957016,living room,0.20113165181311363
+sitting room with a bathroom sink,0.2068784236907959,living room,0.20113165181311363
+sitting room with a kitchen sink,0.2062671184539795,living room,0.20113165181311363
+sitting room showing a toilet seat,0.202936053276062,living room,0.20113165181311363
+sitting room showing a bed,0.21261373162269592,living room,0.20113165181311363
+sitting room showing a sofa,0.19062010943889618,living room,0.20113165181311363
+a sitting room containing a armchair,0.17992451786994934,living room,0.20113165181311363
+a partial view of a floor lamp in a sitting room,0.17372044920921326,living room,0.20113165181311363
+the corner of a family room showing a wall art,0.19359585642814636,living room,0.20113165181311363
+the corner of a family room showing a sofa,0.20161335170269012,living room,0.20113165181311363
+a partial view of a table lamp in a sitting room,0.16719388961791992,living room,0.20113165181311363
+a lounge countertop showing a mantel,0.1627967804670334,living room,0.20113165181311363
+a lounge countertop showing a throw pillow,0.1812271773815155,living room,0.20113165181311363
+POV in the living room looking at the rug,0.21809010207653046,living room,0.20113165181311363
+a low angle showing watching TV in the living room,0.2410728484392166,living room,0.20113165181311363
+a in a mirror reflection of a living area,0.2395927459001541,living room,0.20113165181311363
+a corner of the room of a bookshelf in a sitting room,0.20229120552539825,living room,0.20113165181311363
+a partial view of a indoor plant in a living area,0.1948777735233307,living room,0.20113165181311363
+a partial view of a remote control in a lounge,0.2037671059370041,living room,0.20113165181311363
+the corner of a sitting room showing a rug,0.1918371319770813,living room,0.20113165181311363
+POV in the living area looking at the TV stand,0.21002371609210968,living room,0.20113165181311363
+a partial view showing relaxing on the couch in the family room,0.21167826652526855,living room,0.20113165181311363
+a low angle of a rug in a living area,0.22512701153755188,living room,0.20113165181311363
+a partial view showing reading on the sofa in the living area,0.20044159889221191,living room,0.20113165181311363
+a family room countertop showing a rug,0.1722085326910019,living room,0.20113165181311363
+a top-down of a TV stand in a family room,0.19282183051109314,living room,0.20113165181311363
+a close-up of a couch in a lounge,0.210816890001297,living room,0.20113165181311363
+a corner of the room of a coffee table in a sitting room,0.19949698448181152,living room,0.20113165181311363
+a coffee table next to a wall in a sitting room,0.17802220582962036,living room,0.20113165181311363
+a partial view of a coffee table in a living area,0.18497565388679504,living room,0.20113165181311363
+a sitting room with a armchair,0.18749745190143585,living room,0.20113165181311363
+a low angle of a curtains in a living area,0.23890456557273865,living room,0.20113165181311363
+a partial view of a TV stand in a living room,0.1875697374343872,living room,0.20113165181311363
+a corner of the room of a TV stand in a living room,0.2097005844116211,living room,0.20113165181311363
+POV in the lounge looking at the side table,0.22349520027637482,living room,0.20113165181311363
+a in a mirror reflection of a lounge,0.24202680587768555,living room,0.20113165181311363
+a living room countertop showing a wall art,0.1833799183368683,living room,0.20113165181311363
+a cropped of a floor lamp in a living area,0.2001744955778122,living room,0.20113165181311363
+a close-up of a curtains in a lounge,0.19266043603420258,living room,0.20113165181311363
+a lounge countertop showing a sectional,0.17095351219177246,living room,0.20113165181311363
+the corner of a living room showing a armchair,0.19342133402824402,living room,0.20113165181311363
+a living area containing a mantel,0.1860657036304474,living room,0.20113165181311363
+a coffee table next to a wall in a living room,0.18889519572257996,living room,0.20113165181311363
+a cropped of a sofa in a family room,0.21287257969379425,living room,0.20113165181311363
+a top-down of a floor lamp in a living room,0.19589069485664368,living room,0.20113165181311363
+POV in the living area looking at the coffee table,0.19762204587459564,living room,0.20113165181311363
+a top-down showing relaxing on the couch in the living area,0.22734613716602325,living room,0.20113165181311363
+a living room countertop showing a mantel,0.16363896429538727,living room,0.20113165181311363
+a low angle of a floor lamp in a living room,0.21155278384685516,living room,0.20113165181311363
+a in a mirror reflection of a family room,0.24631115794181824,living room,0.20113165181311363
+a low angle of a game console in a living area,0.2141859233379364,living room,0.20113165181311363
+a top-down of a TV in a family room,0.21306705474853516,living room,0.20113165181311363
+a living area with a soundbar,0.21364787220954895,living room,0.20113165181311363
+a close-up of a floor lamp in a living area,0.16650600731372833,living room,0.20113165181311363
+a partial view showing playing video games in the sitting room,0.21724958717823029,living room,0.20113165181311363
+the corner of a family room showing a curtains,0.20805127918720245,living room,0.20113165181311363
+a photo of a bedroom,0.2856289744377136,bedroom,0.21569261534656475
+the interior of a bedroom,0.25041717290878296,bedroom,0.21569261534656475
+an everyday bedroom,0.2769930064678192,bedroom,0.21569261534656475
+a realistic bedroom,0.2500772178173065,bedroom,0.21569261534656475
+a bedroom with typical furniture,0.22253382205963135,bedroom,0.21569261534656475
+a photo of a sleeping room,0.2630705237388611,bedroom,0.21569261534656475
+the interior of a sleeping room,0.2341204583644867,bedroom,0.21569261534656475
+an everyday sleeping room,0.2603457570075989,bedroom,0.21569261534656475
+a realistic sleeping room,0.239353746175766,bedroom,0.21569261534656475
+a sleeping room with typical furniture,0.2166496217250824,bedroom,0.21569261534656475
+a photo of a master bedroom,0.25778037309646606,bedroom,0.21569261534656475
+the interior of a master bedroom,0.24231334030628204,bedroom,0.21569261534656475
+an everyday master bedroom,0.2523055970668793,bedroom,0.21569261534656475
+a realistic master bedroom,0.23242542147636414,bedroom,0.21569261534656475
+a master bedroom with typical furniture,0.21387919783592224,bedroom,0.21569261534656475
+a photo of a guest bedroom,0.24412691593170166,bedroom,0.21569261534656475
+the interior of a guest bedroom,0.23937158286571503,bedroom,0.21569261534656475
+an everyday guest bedroom,0.24668514728546143,bedroom,0.21569261534656475
+a realistic guest bedroom,0.22696706652641296,bedroom,0.21569261534656475
+a guest bedroom with typical furniture,0.2114933431148529,bedroom,0.21569261534656475
+bedroom with a bathroom sink,0.23401984572410583,bedroom,0.21569261534656475
+bedroom with a kitchen sink,0.23568110167980194,bedroom,0.21569261534656475
+bedroom showing a toilet seat,0.24096837639808655,bedroom,0.21569261534656475
+bedroom showing a bed,0.23998086154460907,bedroom,0.21569261534656475
+bedroom showing a sofa,0.23649314045906067,bedroom,0.21569261534656475
+sleeping room with a bathroom sink,0.24644994735717773,bedroom,0.21569261534656475
+sleeping room with a kitchen sink,0.24135012924671173,bedroom,0.21569261534656475
+sleeping room showing a toilet seat,0.23849543929100037,bedroom,0.21569261534656475
+sleeping room showing a bed,0.24405494332313538,bedroom,0.21569261534656475
+sleeping room showing a sofa,0.23282304406166077,bedroom,0.21569261534656475
+master bedroom with a bathroom sink,0.21759763360023499,bedroom,0.21569261534656475
+master bedroom with a kitchen sink,0.2174428403377533,bedroom,0.21569261534656475
+master bedroom showing a toilet seat,0.23602786660194397,bedroom,0.21569261534656475
+master bedroom showing a bed,0.23715214431285858,bedroom,0.21569261534656475
+master bedroom showing a sofa,0.22821685671806335,bedroom,0.21569261534656475
+guest bedroom with a bathroom sink,0.20856241881847382,bedroom,0.21569261534656475
+guest bedroom with a kitchen sink,0.21075472235679626,bedroom,0.21569261534656475
+guest bedroom showing a toilet seat,0.2239799052476883,bedroom,0.21569261534656475
+guest bedroom showing a bed,0.224948450922966,bedroom,0.21569261534656475
+guest bedroom showing a sofa,0.21384306252002716,bedroom,0.21569261534656475
+a cropped of a bunk bed in a bedroom,0.25374671816825867,bedroom,0.21569261534656475
+a corner of the room showing folding clothes in the sleeping room,0.21830633282661438,bedroom,0.21569261534656475
+a corner of the room of a bed in a bedroom,0.2591562867164612,bedroom,0.21569261534656475
+a close-up showing folding clothes in the guest bedroom,0.2227722704410553,bedroom,0.21569261534656475
+a low angle of a mirror in a sleeping room,0.2580218017101288,bedroom,0.21569261534656475
+a cropped of a headboard in a guest bedroom,0.21959610283374786,bedroom,0.21569261534656475
+a corner of the room showing getting dressed in the master bedroom,0.21604891121387482,bedroom,0.21569261534656475
+a top-down of a bed in a sleeping room,0.24944980442523956,bedroom,0.21569261534656475
+a corner of the room of a wardrobe in a guest bedroom,0.23009856045246124,bedroom,0.21569261534656475
+a top-down of a headboard in a bedroom,0.25052371621131897,bedroom,0.21569261534656475
+a low angle of a vanity table in a guest bedroom,0.23139004409313202,bedroom,0.21569261534656475
+POV in the sleeping room looking at the nightstand,0.271003782749176,bedroom,0.21569261534656475
+a guest bedroom with a vanity table,0.20231938362121582,bedroom,0.21569261534656475
+a low angle of a headboard in a master bedroom,0.2347196638584137,bedroom,0.21569261534656475
+a top-down of a crib in a bedroom,0.24065856635570526,bedroom,0.21569261534656475
+a partial view showing sleeping in the bedroom,0.2504337430000305,bedroom,0.21569261534656475
+a cropped showing reading in bed in the master bedroom,0.2530597746372223,bedroom,0.21569261534656475
+a guest bedroom with a headboard,0.21544823050498962,bedroom,0.21569261534656475
+a corner of the room of a laundry basket in a bedroom,0.23003295063972473,bedroom,0.21569261534656475
+a close-up of a dresser in a master bedroom,0.20150458812713623,bedroom,0.21569261534656475
+a bedsheet next to a wall in a sleeping room,0.2413165122270584,bedroom,0.21569261534656475
+a low angle of a bedsheet in a master bedroom,0.25761595368385315,bedroom,0.21569261534656475
+a low angle showing sleeping in the sleeping room,0.27334147691726685,bedroom,0.21569261534656475
+a low angle of a closet in a guest bedroom,0.2373938113451004,bedroom,0.21569261534656475
+a guest bedroom countertop showing a alarm clock,0.21804681420326233,bedroom,0.21569261534656475
+a close-up of a wardrobe in a master bedroom,0.21051518619060516,bedroom,0.21569261534656475
+a cropped showing getting dressed in the guest bedroom,0.2662788927555084,bedroom,0.21569261534656475
+a bedroom countertop showing a headboard,0.22341986000537872,bedroom,0.21569261534656475
+a low angle of a pillow in a master bedroom,0.2473115175962448,bedroom,0.21569261534656475
+a corner of the room of a bedside lamp in a sleeping room,0.21696415543556213,bedroom,0.21569261534656475
+a top-down of a nightstand in a guest bedroom,0.23004746437072754,bedroom,0.21569261534656475
+a partial view showing folding clothes in the master bedroom,0.22704298794269562,bedroom,0.21569261534656475
+a sleeping room containing a nightstand,0.23320038616657257,bedroom,0.21569261534656475
+a partial view showing making the bed in the bedroom,0.23819896578788757,bedroom,0.21569261534656475
+the corner of a guest bedroom showing a nightstand,0.21467673778533936,bedroom,0.21569261534656475
+a partial view of a pillow in a guest bedroom,0.2180500328540802,bedroom,0.21569261534656475
+a close-up of a closet in a guest bedroom,0.19942863285541534,bedroom,0.21569261534656475
+a top-down of a nightstand in a master bedroom,0.22695644199848175,bedroom,0.21569261534656475
+a low angle of a alarm clock in a guest bedroom,0.26656094193458557,bedroom,0.21569261534656475
+a low angle of a alarm clock in a bedroom,0.27839988470077515,bedroom,0.21569261534656475
+a corner of the room of a pillow in a bedroom,0.24156852066516876,bedroom,0.21569261534656475
+a low angle of a blanket in a master bedroom,0.2564912438392639,bedroom,0.21569261534656475
+a corner of the room showing making the bed in the guest bedroom,0.21467947959899902,bedroom,0.21569261534656475
+a GoPro frame of a guest bedroom,0.30092042684555054,bedroom,0.21569261534656475
+a blanket next to a wall in a bedroom,0.23780634999275208,bedroom,0.21569261534656475
+the corner of a sleeping room showing a duvet,0.23952539265155792,bedroom,0.21569261534656475
+a sleeping room containing a bunk bed,0.23912127315998077,bedroom,0.21569261534656475
+signs of getting dressed in a bedroom,0.2580191493034363,bedroom,0.21569261534656475
+a sleeping room with a crib,0.2160010039806366,bedroom,0.21569261534656475
+a partial view of a dresser in a sleeping room,0.22039413452148438,bedroom,0.21569261534656475
+a photo of a garden,0.2004539966583252,outside,0.18969119940376533
+the interior of a garden,0.19211986660957336,outside,0.18969119940376533
+an everyday garden,0.20855645835399628,outside,0.18969119940376533
+a realistic garden,0.18600238859653473,outside,0.18969119940376533
+a garden with typical furniture,0.1535329520702362,outside,0.18969119940376533
+a photo of a backyard,0.21179983019828796,outside,0.18969119940376533
+the interior of a backyard,0.19270047545433044,outside,0.18969119940376533
+an everyday backyard,0.19363275170326233,outside,0.18969119940376533
+a realistic backyard,0.17105300724506378,outside,0.18969119940376533
+a backyard with typical furniture,0.16545364260673523,outside,0.18969119940376533
+a photo of a outdoors,0.2055322825908661,outside,0.18969119940376533
+the interior of a outdoors,0.20217864215373993,outside,0.18969119940376533
+an everyday outdoors,0.2006652057170868,outside,0.18969119940376533
+a realistic outdoors,0.19259169697761536,outside,0.18969119940376533
+a outdoors with typical furniture,0.17343765497207642,outside,0.18969119940376533
+a photo of a patio,0.19428209960460663,outside,0.18969119940376533
+the interior of a patio,0.17274895310401917,outside,0.18969119940376533
+an everyday patio,0.17618300020694733,outside,0.18969119940376533
+a realistic patio,0.15992240607738495,outside,0.18969119940376533
+a patio with typical furniture,0.14151296019554138,outside,0.18969119940376533
+a photo of a yard,0.2228495180606842,outside,0.18969119940376533
+the interior of a yard,0.21221284568309784,outside,0.18969119940376533
+an everyday yard,0.21045324206352234,outside,0.18969119940376533
+a realistic yard,0.18706904351711273,outside,0.18969119940376533
+a yard with typical furniture,0.16403484344482422,outside,0.18969119940376533
+garden with a bathroom sink,0.20494946837425232,outside,0.18969119940376533
+garden with a kitchen sink,0.19609589874744415,outside,0.18969119940376533
+garden showing a toilet seat,0.1727243959903717,outside,0.18969119940376533
+garden showing a bed,0.2099761664867401,outside,0.18969119940376533
+garden showing a sofa,0.18954530358314514,outside,0.18969119940376533
+backyard with a bathroom sink,0.1806928664445877,outside,0.18969119940376533
+backyard with a kitchen sink,0.185341015458107,outside,0.18969119940376533
+backyard showing a toilet seat,0.17913076281547546,outside,0.18969119940376533
+backyard showing a bed,0.2144407331943512,outside,0.18969119940376533
+backyard showing a sofa,0.19014331698417664,outside,0.18969119940376533
+outdoors with a bathroom sink,0.19011445343494415,outside,0.18969119940376533
+outdoors with a kitchen sink,0.1930377036333084,outside,0.18969119940376533
+outdoors showing a toilet seat,0.18017490208148956,outside,0.18969119940376533
+outdoors showing a bed,0.21888932585716248,outside,0.18969119940376533
+outdoors showing a sofa,0.1709975004196167,outside,0.18969119940376533
+a grill next to a wall in a patio,0.14446428418159485,outside,0.18969119940376533
+a flower bed next to a wall in a patio,0.13565072417259216,outside,0.18969119940376533
+a cropped of a planter box in a patio,0.11630906164646149,outside,0.18969119940376533
+a cropped of a trees in a patio,0.15569034218788147,outside,0.18969119940376533
+the corner of a outdoors showing a deck,0.1746595948934555,outside,0.18969119940376533
+a partial view showing watering plants in the garden,0.15088757872581482,outside,0.18969119940376533
+a close-up of a fence in a patio,0.1259078085422516,outside,0.18969119940376533
+a partial view of a swing in a patio,0.166691854596138,outside,0.18969119940376533
+a top-down of a barbecue in a garden,0.1738128811120987,outside,0.18969119940376533
+a lawn next to a wall in a garden,0.16497789323329926,outside,0.18969119940376533
+a cropped of a shed in a backyard,0.18161895871162415,outside,0.18969119940376533
+a partial view of a outdoor table in a backyard,0.12825025618076324,outside,0.18969119940376533
+the corner of a garden showing a planter box,0.1217339038848877,outside,0.18969119940376533
+a backyard containing a garden hose,0.16338297724723816,outside,0.18969119940376533
+a in a mirror reflection of a outdoors,0.21143634617328644,outside,0.18969119940376533
+a partial view of a flower bed in a backyard,0.13496245443820953,outside,0.18969119940376533
+a low angle showing mowing the lawn in the yard,0.17661991715431213,outside,0.18969119940376533
+a through a doorway of a patio,0.1752152293920517,outside,0.18969119940376533
+a low angle showing watering plants in the yard,0.18377219140529633,outside,0.18969119940376533
+the corner of a backyard showing a flower bed,0.15761364996433258,outside,0.18969119940376533
+a cropped showing watering plants in the patio,0.16044411063194275,outside,0.18969119940376533
+a backyard countertop showing a trampoline,0.1794174462556839,outside,0.18969119940376533
+a partial view of a lawn in a outdoors,0.14664484560489655,outside,0.18969119940376533
+a partial view of a stones in a yard,0.16331355273723602,outside,0.18969119940376533
+a partial view of a shed in a patio,0.16734755039215088,outside,0.18969119940376533
+POV in the backyard looking at the balcony,0.19272379577159882,outside,0.18969119940376533
+a partial view of a outdoor table in a yard,0.1257307231426239,outside,0.18969119940376533
+a garden with a grill,0.1830669492483139,outside,0.18969119940376533
+a cropped of a pathway in a garden,0.11230579763650894,outside,0.18969119940376533
+a top-down of a grass in a patio,0.14696595072746277,outside,0.18969119940376533
+a backyard countertop showing a stones,0.15418174862861633,outside,0.18969119940376533
+a top-down showing mowing the lawn in the yard,0.1692405492067337,outside,0.18969119940376533
+a backyard containing a trampoline,0.17550276219844818,outside,0.18969119940376533
+POV in the yard looking at the planter box,0.15310168266296387,outside,0.18969119940376533
+a patio with a garden hose,0.1475401222705841,outside,0.18969119940376533
+a outdoors with a pathway,0.1663755625486374,outside,0.18969119940376533
+a low angle of a deck in a patio,0.18599972128868103,outside,0.18969119940376533
+a stones next to a wall in a patio,0.1684015542268753,outside,0.18969119940376533
+a backyard where someone is gardening,0.18434783816337585,outside,0.18969119940376533
+a garden containing a trees,0.16452153027057648,outside,0.18969119940376533
+a outdoors containing a barbecue,0.16395442187786102,outside,0.18969119940376533
+a low angle of a lawn in a outdoors,0.18201008439064026,outside,0.18969119940376533
+a corner of the room of a barbecue in a garden,0.19947059452533722,outside,0.18969119940376533
+POV in the patio looking at the patio furniture,0.1787005364894867,outside,0.18969119940376533
+a balcony next to a wall in a outdoors,0.18308334052562714,outside,0.18969119940376533
+yard showing a sofa,0.20808668434619904,outside,0.18969119940376533
+a corner of the room of a balcony in a yard,0.2123454511165619,outside,0.18969119940376533
+a corner of the room showing watering plants in the garden,0.20126184821128845,outside,0.18969119940376533
+a garden with a flower bed,0.17777517437934875,outside,0.18969119940376533
+a cropped of a trees in a garden,0.1605789065361023,outside,0.18969119940376533

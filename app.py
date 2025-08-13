@@ -4,12 +4,15 @@ import time
 import random
 from dataclasses import dataclass
 from typing import Dict, List, Tuple
+from pathlib import Path
+from datetime import datetime
 
 import gradio as gr
 import numpy as np
 from PIL import Image, ImageDraw, ImageFont
 import torch
 import torch.nn.functional as F
+import pandas as pd
 
 # --- Optional compatibility patch for older gradio_client on Python 3.9/3.10 ---
 try:
@@ -185,20 +188,20 @@ def _prioritized_prompts_for_room(room: str) -> List[str]:
         for t in BASE_TEMPLATES:
             add(t, alias=alias)
 
-    # 2) Disambiguation specials (helps sink/bed/toilet/sofa cases)
+    # 2) Disambiguation specials
     for alias in aliases:
         for t in DISAMBIG_SPECIALS:
             add(t, alias=alias)
 
-    # 3) Object-centric with limited frame combos (high precision)
+    # 3) Object-centric + limited frame combos
     for alias in aliases:
         for obj in objs:
             add("a {alias} containing a {obj}", alias=alias, obj=obj)
             for t in OBJECT_TEMPLATES:
-                for frame in FRAMES[:6]:  # limit explosion
+                for frame in FRAMES[:6]:
                     add(t, alias=alias, obj=obj, frame=frame)
 
-    # 4) Activity-centric with limited frame combos
+    # 4) Activity-centric + limited frame combos
     for alias in aliases:
         for act in acts:
             for t in ACTIVITY_TEMPLATES:
@@ -216,47 +219,52 @@ def generate_prompts() -> Dict[str, List[str]]:
     prompts_by_room: Dict[str, List[str]] = {}
     for room in ROOMS:
         p = _prioritized_prompts_for_room(room)
-
-        # Keep strongest ~40 upfront, then lightly shuffle the rest for diversity
         head = p[:40]
         tail = p[40:]
         random.seed(42)
         random.shuffle(tail)
         capped = (head + tail)[:TARGET_PROMPTS_PER_ROOM]
-
-        # Guarantee minimum of 50
         if len(capped) < 50:
             capped = (capped + p[len(capped):])[:50]
-
         prompts_by_room[room] = capped
     return prompts_by_room
 # ======================= /Sophisticated prompt engineering =======================
 
 AVAILABLE_MODELS = [
-    "ViT-B/32",        # fast
-    "ViT-B/16",
-    "ViT-L/14",        # strong
-    "ViT-L/14@336px",  # strongest (slower, higher-res)
-    "RN50",
-    "RN101",
-    "RN50x4",
-    "RN50x16",
+    "ViT-B/32", "ViT-B/16", "ViT-L/14", "ViT-L/14@336px",
+    "RN50", "RN101", "RN50x4", "RN50x16",
 ]
+
+# -------- object cues (short, high-signal) ----------
+OBJECT_CUES = {
+    "kitchen": ["stove", "oven", "range hood", "kitchen sink", "fridge", "microwave",
+                "cutting board", "knife block", "pots and pans", "spice rack"],
+    "bathroom": ["toilet", "toilet seat", "bathroom sink", "shower", "bathtub",
+                 "toothbrush", "soap dispenser", "towel rack"],
+    "living room": ["sofa", "couch", "coffee table", "TV", "bookshelf", "floor lamp",
+                    "throw pillow", "rug", "soundbar"],
+    "bedroom": ["bed", "headboard", "pillow", "blanket", "nightstand", "wardrobe",
+                "dresser", "bedside lamp"],
+    "outside": ["grass", "lawn", "trees", "patio furniture", "barbecue", "garden hose",
+                "fence", "flower bed"],
+}
+# ----------------------------------------------------
 
 @dataclass
 class ClipContext:
     device: torch.device
     model: torch.nn.Module
     preprocess: any
-    text_features: torch.Tensor
+    text_features: torch.Tensor               # engineered prompts
     prompt_index_to_room: List[str]
+    prompts_all: List[str]
     rooms: List[str]
     model_name: str
     use_fp16: bool
+    cue_features_by_room: Dict[str, torch.Tensor]  # per-room object-cue embeddings
 
 def _encode_text(model, tokens, use_fp16: bool):
     if torch.cuda.is_available():
-        # new API
         with torch.amp.autocast("cuda", dtype=torch.float16, enabled=use_fp16):
             feats = model.encode_text(tokens)
     else:
@@ -265,7 +273,6 @@ def _encode_text(model, tokens, use_fp16: bool):
 
 def _encode_image(model, img_tensor, use_fp16: bool):
     if torch.cuda.is_available():
-        # new API
         with torch.amp.autocast("cuda", dtype=torch.float16, enabled=use_fp16):
             feats = model.encode_image(img_tensor)
     else:
@@ -280,8 +287,7 @@ def build_clip(model_name: str, use_fp16: bool) -> ClipContext:
     model.eval()
 
     prompts_by_room = generate_prompts()
-    all_prompts: List[str] = []
-    prompt_index_to_room: List[str] = []
+    all_prompts, prompt_index_to_room = [], []
     for room, plist in prompts_by_room.items():
         for p in plist:
             all_prompts.append(p)
@@ -290,7 +296,13 @@ def build_clip(model_name: str, use_fp16: bool) -> ClipContext:
     with torch.no_grad():
         text_tokens = clip.tokenize(all_prompts).to(device)
         text_features = _encode_text(model, text_tokens, use_fp16=use_fp16)
-        text_features = F.normalize(text_features.float(), dim=-1)  # keep as float32 for stability
+        text_features = F.normalize(text_features.float(), dim=-1)
+
+        cue_features_by_room: Dict[str, torch.Tensor] = {}
+        for room, cue_list in OBJECT_CUES.items():
+            toks = clip.tokenize(cue_list).to(device)
+            feats = _encode_text(model, toks, use_fp16=use_fp16)
+            cue_features_by_room[room] = F.normalize(feats.float(), dim=-1)
 
     return ClipContext(
         device=device,
@@ -298,43 +310,104 @@ def build_clip(model_name: str, use_fp16: bool) -> ClipContext:
         preprocess=preprocess,
         text_features=text_features,
         prompt_index_to_room=prompt_index_to_room,
+        prompts_all=all_prompts,
         rooms=ROOMS,
         model_name=model_name,
         use_fp16=use_fp16,
+        cue_features_by_room=cue_features_by_room,
     )
 
-# -------- lazy init guard so CTX is always available ----------
+# -------- lazy init guard ----------
 CTX: ClipContext | None = None
 DEFAULT_MODEL = "ViT-L/14@336px"
 DEFAULT_FP16 = torch.cuda.is_available()
 CURRENT_MODEL = DEFAULT_MODEL
 CURRENT_FP16 = DEFAULT_FP16
+FRAME_IDX = 0
+DATA_DIR = Path("data")
+DATA_DIR.mkdir(parents=True, exist_ok=True)
 
 def ensure_ctx():
-    """Create the global CTX if it hasn't been created yet."""
     global CTX
     if CTX is None:
         CTX = build_clip(CURRENT_MODEL, use_fp16=CURRENT_FP16)
-# --------------------------------------------------------------
+# -----------------------------------
 
 @torch.no_grad()
-def classify_frame(image: Image.Image) -> Tuple[str, float]:
+def classify_frame_with_debug(image: Image.Image) -> Tuple[str, float, np.ndarray, List[str], List[str], np.ndarray]:
+    """
+    Returns:
+      room, conf,
+      avg_sims_full (N_prompts,),
+      prompts_all (list of N strings),
+      prompt_rooms (list of N room labels),
+      class_probs (len(ROOMS),) final per-class probabilities
+    """
     global CTX
-    ensure_ctx()  # make sure model exists even if stream starts early
-    img_input = CTX.preprocess(image).unsqueeze(0).to(CTX.device)
-    image_features = _encode_image(CTX.model, img_input, use_fp16=CTX.use_fp16)
-    image_features = F.normalize(image_features.float(), dim=-1)
-    sims = image_features @ CTX.text_features.T
-    sims = sims.squeeze(0)
-    best_per_room: Dict[str, float] = {room: -1e9 for room in CTX.rooms}
-    for idx, room in enumerate(CTX.prompt_index_to_room):
-        val = float(sims[idx].item())
-        if val > best_per_room[room]:
-            best_per_room[room] = val
-    room, _ = max(best_per_room.items(), key=lambda kv: kv[1])
-    scores = torch.tensor(list(best_per_room.values()))
-    conf = torch.softmax(scores, dim=0)[CTX.rooms.index(room)].item()
-    return room, float(conf)
+    ensure_ctx()
+
+    # 5-crop to handle partial views
+    w, h = image.size
+    crop_w, crop_h = int(0.75 * w), int(0.75 * h)
+    crops = [
+        image.crop((0, 0, crop_w, crop_h)),
+        image.crop((w - crop_w, 0, w, crop_h)),
+        image.crop((0, h - crop_h, crop_w, h)),
+        image.crop((w - crop_w, h - crop_h, w, h)),
+    ]
+    cx0, cy0 = (w - crop_w) // 2, (h - crop_h) // 2
+    crops.append(image.crop((cx0, cy0, cx0 + crop_w, cy0 + crop_h)))
+
+    per_crop_prompt_sims = []
+    per_crop_best_full_by_room = []
+
+    # per-crop compute similarities
+    for crop in crops:
+        img_input = CTX.preprocess(crop).unsqueeze(0).to(CTX.device)
+        img_feats = _encode_image(CTX.model, img_input, use_fp16=CTX.use_fp16)
+        img_feats = F.normalize(img_feats.float(), dim=-1)
+
+        sims_full = (img_feats @ CTX.text_features.T).squeeze(0)  # (N_prompts,)
+        per_crop_prompt_sims.append(sims_full.cpu())
+
+        best_full = {room: -1e9 for room in CTX.rooms}
+        for idx, room in enumerate(CTX.prompt_index_to_room):
+            s = float(sims_full[idx].item())
+            if s > best_full[room]:
+                best_full[room] = s
+        per_crop_best_full_by_room.append(best_full)
+
+    # average per-prompt similarities across crops
+    avg_sims_full = torch.stack(per_crop_prompt_sims, dim=0).mean(dim=0)  # (N_prompts,)
+
+    # average "best full" across crops
+    best_full_avg = {room: np.mean([d[room] for d in per_crop_best_full_by_room]) for room in CTX.rooms}
+
+    # object cue scores (best cue over room) averaged across crops
+    cue_scores = {}
+    for room in CTX.rooms:
+        crop_vals = []
+        for crop in crops:
+            img_input = CTX.preprocess(crop).unsqueeze(0).to(CTX.device)
+            img_feats = _encode_image(CTX.model, img_input, use_fp16=CTX.use_fp16)
+            img_feats = F.normalize(img_feats.float(), dim=-1)
+            sims_cues = (img_feats @ CTX.cue_features_by_room[room].T).squeeze(0)
+            crop_vals.append(float(sims_cues.max().item()))
+        cue_scores[room] = float(np.mean(crop_vals))
+
+    # weighted mix + temperature softmax
+    name_weight, cue_weight = 0.4, 0.6
+    mix_scores = torch.tensor([name_weight * best_full_avg[r] + cue_weight * cue_scores[r] for r in CTX.rooms])
+    T = 0.5
+    class_probs = torch.softmax(mix_scores / T, dim=0)
+    best_idx = int(torch.argmax(class_probs).item())
+    room = CTX.rooms[best_idx]
+    conf = float(class_probs[best_idx].item())
+
+    # convert for logging
+    prompts_all = CTX.prompts_all
+    prompt_rooms = CTX.prompt_index_to_room
+    return room, conf, avg_sims_full.numpy(), prompts_all, prompt_rooms, class_probs.cpu().numpy()
 
 FONT = None
 def get_font(size: int = 32):
@@ -362,6 +435,33 @@ def draw_label(image: Image.Image, label: str, confidence: float) -> Image.Image
     draw.text((box[0] + pad, box[1] + pad), text, font=font, fill=(255, 255, 255))
     return img
 
+def _save_debug(image: Image.Image,
+                avg_sims_full: np.ndarray,
+                prompts_all: List[str],
+                prompt_rooms: List[str],
+                class_probs: np.ndarray):
+    """Write JPEG + per-prompt CSV into data/."""
+    global FRAME_IDX
+    DATA_DIR.mkdir(parents=True, exist_ok=True)
+    FRAME_IDX += 1
+    ts = datetime.utcnow().strftime("%Y%m%dT%H%M%S%fZ")
+    stem = f"frame_{ts}_{FRAME_IDX:06d}"
+    img_path = DATA_DIR / f"{stem}.jpg"
+    csv_path = DATA_DIR / f"{stem}.csv"
+
+    image.convert("RGB").save(img_path, quality=90)
+
+    # map room -> prob for quick lookup
+    room_to_prob = {room: float(class_probs[i]) for i, room in enumerate(ROOMS)}
+
+    df = pd.DataFrame({
+        "prompt": prompts_all,
+        "score": avg_sims_full.astype(float),
+        "room": prompt_rooms,
+        "class_prob": [room_to_prob[r] for r in prompt_rooms],
+    })
+    df.to_csv(csv_path, index=False)
+
 def startup(selected_model: str, use_fp16: bool) -> str:
     global CTX, CURRENT_MODEL, CURRENT_FP16
     CURRENT_MODEL = selected_model
@@ -385,13 +485,21 @@ def startup(selected_model: str, use_fp16: bool) -> str:
 def reload_model(selected_model: str, use_fp16: bool) -> str:
     return startup(selected_model, use_fp16)
 
-def process_frame(frame: np.ndarray, threshold_percent: float) -> Tuple[np.ndarray, str]:
+def process_frame(frame: np.ndarray, threshold_percent: float, save_debug: bool) -> Tuple[np.ndarray, str]:
     if frame is None:
         return None, ""
-    # If the model somehow isn't ready yet, build it lazily (non-crashing)
     ensure_ctx()
     pil = Image.fromarray(frame.astype(np.uint8))
-    room, conf = classify_frame(pil)
+
+    room, conf, avg_sims_full, prompts_all, prompt_rooms, class_probs = classify_frame_with_debug(pil)
+
+    if save_debug:
+        try:
+            _save_debug(pil, avg_sims_full, prompts_all, prompt_rooms, class_probs)
+        except Exception as e:
+            # keep streaming even if disk write fails
+            print(f"[debug-save] {e}")
+
     threshold = float(threshold_percent) / 100.0
     if conf >= threshold:
         annotated = draw_label(pil, room, conf)
@@ -401,44 +509,60 @@ def process_frame(frame: np.ndarray, threshold_percent: float) -> Tuple[np.ndarr
         label_out = f"below {threshold_percent:.0f}% threshold ({conf*100:.1f}%)"
     return np.array(annotated), label_out
 
+# -------------------------- UI --------------------------
 with gr.Blocks(css=".label-box {font-size: 1.2rem; font-weight: 600}") as demo:
     gr.Markdown("# 🏠 Real-time Room Detector (CLIP Zero-Shot) — GPU Ready")
 
     with gr.Row():
         model_select = gr.Dropdown(
             choices=AVAILABLE_MODELS,
-            value=DEFAULT_MODEL,  # default to strongest
+            value="ViT-B/32", # "ViT-L/14@336px",
             label="CLIP model (stronger ⇒ slower)"
         )
         fp16_toggle = gr.Checkbox(
-            value=DEFAULT_FP16,  # default to True if CUDA
+            value=torch.cuda.is_available(),
             label="Use FP16 (GPU only)"
         )
         threshold_slider = gr.Slider(
             minimum=0, maximum=100, step=1, value=40,
             label="Confidence threshold (%) — show label only above this (random = 20%)"
         )
+        save_debug_checkbox = gr.Checkbox(
+            value=True,
+            label="Save per-frame debug logs (images + CSV to ./data)"
+        )
     status = gr.Markdown("Initializing…")
-
-    # Ensure model builds as soon as the page loads
     demo.load(fn=startup, inputs=[model_select, fp16_toggle], outputs=status)
 
     with gr.Row():
-        cam = gr.Image(
-            sources=["webcam"],
-            streaming=True,
-            label="Webcam",
-            height=420,
-            webcam_options=gr.WebcamOptions(mirror=True)  # replaces deprecated mirror_webcam
-        )
+        try:
+            cam = gr.Image(
+                sources=["webcam"],
+                streaming=True,
+                webcam_options=gr.WebcamOptions(mirror=True),
+                label="Webcam",
+                height=420
+            )
+        except AttributeError:
+            # Older Gradio fallback
+            cam = gr.Image(
+                sources=["webcam"],
+                streaming=True,
+                mirror_webcam=True,
+                label="Webcam",
+                height=420
+            )
         out_img = gr.Image(label="Annotated Stream", height=420)
     label_text = gr.Textbox(label="Predicted Room", interactive=False, elem_classes=["label-box"])
 
-    # Stream AFTER wiring the loader to reduce race conditions
-    cam.stream(process_frame, inputs=[cam, threshold_slider], outputs=[out_img, label_text], concurrency_limit=2)
+    cam.stream(
+        process_frame,
+        inputs=[cam, threshold_slider, save_debug_checkbox],
+        outputs=[out_img, label_text],
+        concurrency_limit=2
+    )
     model_select.change(fn=reload_model, inputs=[model_select, fp16_toggle], outputs=status)
     fp16_toggle.change(fn=reload_model, inputs=[model_select, fp16_toggle], outputs=status)
 
 if __name__ == "__main__":
-    # Server deploy defaults (enable share if you want a public link)
     demo.queue().launch(server_name="0.0.0.0", server_port=7860, share=True, max_threads=8)

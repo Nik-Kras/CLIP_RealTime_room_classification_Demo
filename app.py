@@ -255,13 +255,15 @@ class ClipContext:
     device: torch.device
     model: torch.nn.Module
     preprocess: any
-    text_features: torch.Tensor               # engineered prompts
+    # Banks stored transposed for stable matmul with image feats (1, D)
+    text_features_T: torch.Tensor                   # (D, N_prompts)
+    cue_features_T_by_room: Dict[str, torch.Tensor] # room -> (D, K_room_cues)
     prompt_index_to_room: List[str]
     prompts_all: List[str]
     rooms: List[str]
     model_name: str
     use_fp16: bool
-    cue_features_by_room: Dict[str, torch.Tensor]  # per-room object-cue embeddings
+    feat_dim: int                                   # D (512, 768, etc.)
 
 def _encode_text(model, tokens, use_fp16: bool):
     if torch.cuda.is_available():
@@ -294,27 +296,34 @@ def build_clip(model_name: str, use_fp16: bool) -> ClipContext:
             prompt_index_to_room.append(room)
 
     with torch.no_grad():
+        # ---- engineered prompts ----
         text_tokens = clip.tokenize(all_prompts).to(device)
-        text_features = _encode_text(model, text_tokens, use_fp16=use_fp16)
+        text_features = _encode_text(model, text_tokens, use_fp16=use_fp16)    # (N, D)
         text_features = F.normalize(text_features.float(), dim=-1)
+        text_features_T = text_features.T.contiguous()                         # (D, N)
 
-        cue_features_by_room: Dict[str, torch.Tensor] = {}
+        feat_dim = text_features.shape[1]
+
+        # ---- object cues per room ----
+        cue_features_T_by_room: Dict[str, torch.Tensor] = {}
         for room, cue_list in OBJECT_CUES.items():
             toks = clip.tokenize(cue_list).to(device)
-            feats = _encode_text(model, toks, use_fp16=use_fp16)
-            cue_features_by_room[room] = F.normalize(feats.float(), dim=-1)
+            feats = _encode_text(model, toks, use_fp16=use_fp16)               # (K, D)
+            feats = F.normalize(feats.float(), dim=-1)
+            cue_features_T_by_room[room] = feats.T.contiguous()                # (D, K)
 
     return ClipContext(
         device=device,
         model=model,
         preprocess=preprocess,
-        text_features=text_features,
+        text_features_T=text_features_T,
+        cue_features_T_by_room=cue_features_T_by_room,
         prompt_index_to_room=prompt_index_to_room,
         prompts_all=all_prompts,
         rooms=ROOMS,
         model_name=model_name,
         use_fp16=use_fp16,
-        cue_features_by_room=cue_features_by_room,
+        feat_dim=feat_dim,
     )
 
 # -------- lazy init guard ----------
@@ -333,8 +342,16 @@ def ensure_ctx():
         CTX = build_clip(CURRENT_MODEL, use_fp16=CURRENT_FP16)
 # -----------------------------------
 
+# cooperative cancel (set via UI Stop/Resume)
+CANCEL = False
+
+def _set_cancel(val: bool):
+    global CANCEL
+    CANCEL = bool(val)
+    return f"{'⏹️ Stopped' if val else '▶️ Running'}"
+
 @torch.no_grad()
-def classify_frame_with_debug(image: Image.Image) -> Tuple[str, float, np.ndarray, List[str], List[str], np.ndarray]:
+def classify_frame_with_debug(image: Image.Image, cancel_flag: bool) -> Tuple[str, float, np.ndarray, List[str], List[str], np.ndarray]:
     """
     Returns:
       room, conf,
@@ -343,8 +360,13 @@ def classify_frame_with_debug(image: Image.Image) -> Tuple[str, float, np.ndarra
       prompt_rooms (list of N room labels),
       class_probs (len(ROOMS),) final per-class probabilities
     """
-    global CTX
+    global CTX, CANCEL
     ensure_ctx()
+
+    if CANCEL or cancel_flag:
+        # Fast path when cancelled
+        probs = np.ones(len(ROOMS), dtype=np.float32) / len(ROOMS)
+        return "paused", 0.0, np.zeros(len(CTX.prompts_all), dtype=np.float32), CTX.prompts_all, CTX.prompt_index_to_room, probs
 
     # 5-crop to handle partial views
     w, h = image.size
@@ -358,18 +380,33 @@ def classify_frame_with_debug(image: Image.Image) -> Tuple[str, float, np.ndarra
     cx0, cy0 = (w - crop_w) // 2, (h - crop_h) // 2
     crops.append(image.crop((cx0, cy0, cx0 + crop_w, cy0 + crop_h)))
 
-    per_crop_prompt_sims = []
-    per_crop_best_full_by_room = []
+    crop_image_features: List[torch.Tensor] = []
+    per_crop_prompt_sims: List[torch.Tensor] = []
+    per_crop_best_full_by_room: List[Dict[str, float]] = []
 
-    # per-crop compute similarities
     for crop in crops:
-        img_input = CTX.preprocess(crop).unsqueeze(0).to(CTX.device)
-        img_feats = _encode_image(CTX.model, img_input, use_fp16=CTX.use_fp16)
-        img_feats = F.normalize(img_feats.float(), dim=-1)
+        if CANCEL or cancel_flag:
+            probs = np.ones(len(ROOMS), dtype=np.float32) / len(ROOMS)
+            return "paused", 0.0, np.zeros(len(CTX.prompts_all), dtype=np.float32), CTX.prompts_all, CTX.prompt_index_to_room, probs
 
-        sims_full = (img_feats @ CTX.text_features.T).squeeze(0)  # (N_prompts,)
+        img_input = CTX.preprocess(crop).unsqueeze(0).to(CTX.device)
+        img_feats = _encode_image(CTX.model, img_input, use_fp16=CTX.use_fp16).float()
+        img_feats = F.normalize(img_feats, dim=-1)                              # (1, D)
+
+        # Self-heal if dims don't match (rare, after hot model switch)
+        if img_feats.shape[1] != CTX.feat_dim:
+            CTX = build_clip(CTX.model_name, use_fp16=CTX.use_fp16)
+            img_input = CTX.preprocess(crop).unsqueeze(0).to(CTX.device)
+            img_feats = _encode_image(CTX.model, img_input, use_fp16=CTX.use_fp16).float()
+            img_feats = F.normalize(img_feats, dim=-1)
+
+        crop_image_features.append(img_feats)
+
+        # Similarity with engineered prompts
+        sims_full = (img_feats @ CTX.text_features_T).squeeze(0)               # (N_prompts,)
         per_crop_prompt_sims.append(sims_full.cpu())
 
+        # Track best prompt per room for "name signal"
         best_full = {room: -1e9 for room in CTX.rooms}
         for idx, room in enumerate(CTX.prompt_index_to_room):
             s = float(sims_full[idx].item())
@@ -377,25 +414,28 @@ def classify_frame_with_debug(image: Image.Image) -> Tuple[str, float, np.ndarra
                 best_full[room] = s
         per_crop_best_full_by_room.append(best_full)
 
-    # average per-prompt similarities across crops
-    avg_sims_full = torch.stack(per_crop_prompt_sims, dim=0).mean(dim=0)  # (N_prompts,)
+    # Average per-prompt similarities across crops
+    avg_sims_full = torch.stack(per_crop_prompt_sims, dim=0).mean(dim=0)       # (N_prompts,)
 
-    # average "best full" across crops
-    best_full_avg = {room: np.mean([d[room] for d in per_crop_best_full_by_room]) for room in CTX.rooms}
+    # Average "best full" across crops
+    best_full_avg = {room: float(np.mean([d[room] for d in per_crop_best_full_by_room])) for room in CTX.rooms}
 
-    # object cue scores (best cue over room) averaged across crops
-    cue_scores = {}
+    # Object cue scores (best cue over room) averaged across crops
+    cue_scores: Dict[str, float] = {}
     for room in CTX.rooms:
+        cue_T = CTX.cue_features_T_by_room[room]                                # (D, K)
         crop_vals = []
-        for crop in crops:
-            img_input = CTX.preprocess(crop).unsqueeze(0).to(CTX.device)
-            img_feats = _encode_image(CTX.model, img_input, use_fp16=CTX.use_fp16)
-            img_feats = F.normalize(img_feats.float(), dim=-1)
-            sims_cues = (img_feats @ CTX.cue_features_by_room[room].T).squeeze(0)
+        for img_feats in crop_image_features:
+            if CANCEL or cancel_flag:
+                probs = np.ones(len(ROOMS), dtype=np.float32) / len(ROOMS)
+                return "paused", 0.0, avg_sims_full.numpy(), CTX.prompts_all, CTX.prompt_index_to_room, probs
+            if img_feats.shape[1] != cue_T.shape[0]:
+                continue  # safety
+            sims_cues = (img_feats @ cue_T).squeeze(0)                          # (K,)
             crop_vals.append(float(sims_cues.max().item()))
-        cue_scores[room] = float(np.mean(crop_vals))
+        cue_scores[room] = float(np.mean(crop_vals)) if crop_vals else -1e9
 
-    # weighted mix + temperature softmax
+    # Weighted mix + temperature softmax
     name_weight, cue_weight = 0.4, 0.6
     mix_scores = torch.tensor([name_weight * best_full_avg[r] + cue_weight * cue_scores[r] for r in CTX.rooms])
     T = 0.5
@@ -404,7 +444,7 @@ def classify_frame_with_debug(image: Image.Image) -> Tuple[str, float, np.ndarra
     room = CTX.rooms[best_idx]
     conf = float(class_probs[best_idx].item())
 
-    # convert for logging
+    # Outputs for logging
     prompts_all = CTX.prompts_all
     prompt_rooms = CTX.prompt_index_to_room
     return room, conf, avg_sims_full.numpy(), prompts_all, prompt_rooms, class_probs.cpu().numpy()
@@ -421,19 +461,40 @@ def get_font(size: int = 32):
 
 def draw_label(image: Image.Image, label: str, confidence: float) -> Image.Image:
     img = image.convert("RGB").copy()
-    draw = ImageDraw.Draw(img)
     text = f"{label.upper()}  {confidence*100:4.1f}%"
     font = get_font(max(24, img.width // 30))
+
+    # Measure text
+    draw = ImageDraw.Draw(img)
     bbox = draw.textbbox((0, 0), text, font=font)
+    text_w = bbox[2] - bbox[0]
+    text_h = bbox[3] - bbox[1]
+
+    # Box geometry (centered top)
     pad = 12
-    box = (10, 10, 10 + (bbox[2]-bbox[0]) + pad*2, 10 + (bbox[3]-bbox[1]) + pad*2)
+    box_w = text_w + 2 * pad
+    box_h = text_h + 2 * pad
+    margin_top = 10
+
+    # Center horizontally; clamp to image bounds with a small margin
+    x = (img.width - box_w) // 2
+    x = max(10, min(x, img.width - box_w - 10))
+    y = margin_top
+    box = (x, y, x + box_w, y + box_h)
+
+    # Draw semi-transparent rounded background then text
     overlay = Image.new("RGBA", img.size, (0, 0, 0, 0))
     od = ImageDraw.Draw(overlay)
     od.rounded_rectangle(box, radius=12, fill=(0, 0, 0, 160))
     img = Image.alpha_composite(img.convert("RGBA"), overlay).convert("RGB")
+
     draw = ImageDraw.Draw(img)
-    draw.text((box[0] + pad, box[1] + pad), text, font=font, fill=(255, 255, 255))
+    draw.text((x + pad, y + pad), text, font=font, fill=(255, 255, 255))
     return img
+
+FRAME_IDX = 0
+DATA_DIR = Path("data")
+DATA_DIR.mkdir(parents=True, exist_ok=True)
 
 def _save_debug(image: Image.Image,
                 avg_sims_full: np.ndarray,
@@ -477,7 +538,7 @@ def startup(selected_model: str, use_fp16: bool) -> str:
     return (
         f"Model: {CTX.model_name} on {CTX.device}\n"
         f"FP16: {CTX.use_fp16}\n"
-        f"Text embeddings: {CTX.text_features.shape[0]} prompts\n"
+        f"Text embeddings: {CTX.text_features_T.shape[1]} prompts\n"
         f"Init: {t1 - t0:.1f}s\n"
         f"gradio {gr.__version__} / gradio_client {_client_ver}"
     )
@@ -485,19 +546,26 @@ def startup(selected_model: str, use_fp16: bool) -> str:
 def reload_model(selected_model: str, use_fp16: bool) -> str:
     return startup(selected_model, use_fp16)
 
-def process_frame(frame: np.ndarray, threshold_percent: float, save_debug: bool) -> Tuple[np.ndarray, str]:
+def process_frame(frame: np.ndarray, threshold_percent: float, save_debug: bool, cancel_processing: bool) -> Tuple[np.ndarray, str]:
     if frame is None:
         return None, ""
-    ensure_ctx()
     pil = Image.fromarray(frame.astype(np.uint8))
 
-    room, conf, avg_sims_full, prompts_all, prompt_rooms, class_probs = classify_frame_with_debug(pil)
+    try:
+        room, conf, avg_sims_full, prompts_all, prompt_rooms, class_probs = classify_frame_with_debug(pil, cancel_processing)
+    except Exception as e:
+        # Keep streaming even if a frame fails
+        print(f"[inference] {e}")
+        return frame, "error"
+
+    # If cancelled, just echo the frame and a paused label
+    if room == "paused" or cancel_processing:
+        return frame, "⏸ paused"
 
     if save_debug:
         try:
             _save_debug(pil, avg_sims_full, prompts_all, prompt_rooms, class_probs)
         except Exception as e:
-            # keep streaming even if disk write fails
             print(f"[debug-save] {e}")
 
     threshold = float(threshold_percent) / 100.0
@@ -516,7 +584,7 @@ with gr.Blocks(css=".label-box {font-size: 1.2rem; font-weight: 600}") as demo:
     with gr.Row():
         model_select = gr.Dropdown(
             choices=AVAILABLE_MODELS,
-            value="ViT-B/32", # "ViT-L/14@336px",
+            value="ViT-B/32",  # or "ViT-L/14@336px"
             label="CLIP model (stronger ⇒ slower)"
         )
         fp16_toggle = gr.Checkbox(
@@ -524,14 +592,22 @@ with gr.Blocks(css=".label-box {font-size: 1.2rem; font-weight: 600}") as demo:
             label="Use FP16 (GPU only)"
         )
         threshold_slider = gr.Slider(
-            minimum=0, maximum=100, step=1, value=40,
+            minimum=0, maximum=100, step=1, value=20.7,
             label="Confidence threshold (%) — show label only above this (random = 20%)"
         )
         save_debug_checkbox = gr.Checkbox(
             value=True,
             label="Save per-frame debug logs (images + CSV to ./data)"
         )
-    status = gr.Markdown("Initializing…")
+
+    # Run/Stop controls (cooperative cancel)
+    with gr.Row():
+        status = gr.Markdown("Initializing…")
+        cancel_state = gr.State(False)
+        stop_btn = gr.Button("⏹ Stop")
+        resume_btn = gr.Button("▶️ Resume")
+        state_label = gr.Markdown("▶️ Running")
+
     demo.load(fn=startup, inputs=[model_select, fp16_toggle], outputs=status)
 
     with gr.Row():
@@ -555,14 +631,19 @@ with gr.Blocks(css=".label-box {font-size: 1.2rem; font-weight: 600}") as demo:
         out_img = gr.Image(label="Annotated Stream", height=420)
     label_text = gr.Textbox(label="Predicted Room", interactive=False, elem_classes=["label-box"])
 
+    # Wire cooperative cancel to UI
+    stop_btn.click(lambda: True, outputs=cancel_state).then(_set_cancel, inputs=cancel_state, outputs=state_label)
+    resume_btn.click(lambda: False, outputs=cancel_state).then(_set_cancel, inputs=cancel_state, outputs=state_label)
+
     cam.stream(
         process_frame,
-        inputs=[cam, threshold_slider, save_debug_checkbox],
+        inputs=[cam, threshold_slider, save_debug_checkbox, cancel_state],
         outputs=[out_img, label_text],
-        concurrency_limit=2
+        concurrency_limit=1
     )
     model_select.change(fn=reload_model, inputs=[model_select, fp16_toggle], outputs=status)
     fp16_toggle.change(fn=reload_model, inputs=[model_select, fp16_toggle], outputs=status)
 
 if __name__ == "__main__":
-    demo.queue().launch(server_name="0.0.0.0", server_port=7860, share=True, max_threads=8)
+    # Limit queue size so stopping doesn't wait on a long backlog
+    demo.queue(max_size=8).launch(server_name="0.0.0.0", server_port=7860, share=True, max_threads=8)

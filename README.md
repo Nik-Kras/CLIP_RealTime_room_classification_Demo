@@ -2,6 +2,9 @@
 
 Detect the room type (kitchen, bathroom, living room, bedroom, outside) from a live webcam stream using OpenAI CLIP zero-shot classification. Optimized to take advantage of **NVIDIA RTX 4090** with **FP16**.
 
+## 📽 Demo Video
+[![Watch the demo](https://img.youtube.com/vi/--gecpzyppg/maxresdefault.jpg)](https://youtu.be/--gecpzyppg?si=yVkUI7idJDEwjv1V)
+
 ## 1) Server prerequisites
 
 - Ubuntu 22.04/24.04 (recommended) or similar Linux with an NVIDIA GPU (e.g., RTX 4090).
